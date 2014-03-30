@@ -129,7 +129,7 @@ macro bilin_asm(bilin_form,mesh)
     end
 end
 
-macro bilin_asm_nl(bilin_form,mesh,nl)
+macro bilin_asm_mat(bilin_form,mesh,mat)
     quote
         ##
         ## Assembly of a (non-linear) bilinear form using P1 elements.
@@ -187,7 +187,7 @@ macro bilin_asm_nl(bilin_form,mesh,nl)
         absdetA::Float64 = -1.0
         detA::Float64 = -1.0
 
-        nlcalc = $nl
+        nlcalc = $mat
 
         for k=1:size($mesh.t,2)
             # Find global node indices
@@ -451,7 +451,7 @@ function play()
     for i=1:3
         trisurf(mesh,U[:,1])
         X = 1.0/sqrt(1.0+dx(U).^2+dy(U).^2)
-        S = @bilin_asm_nl(a*(ux*vx+uy*vy),mesh,X)
+        S = @bilin_asm_mat(a*(ux*vx+uy*vy),mesh,X)
         #Solve the linear system
         U[I,1]=cholfact(S[I,I])\(-S[I,D]*U[D,1])
     end
