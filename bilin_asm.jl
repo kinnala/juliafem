@@ -141,10 +141,10 @@ macro bilin_asm(bilin_form,mesh,nodal...)
                     local ix::Int64 = $mesh.t[i,k]
                     # Loop over quadrature points
                     for q=1:Nqp
-                        x = gqp[1,q]
-                        y = gqp[2,q]
-                        u = phi_hat_qp[j,q]
-                        v = phi_hat_qp[i,q]
+                        local x = gqp[1,q]
+                        local y = gqp[2,q]
+                        local u = phi_hat_qp[j,q]
+                        local v = phi_hat_qp[i,q]
                         # Calculate the values of the parameters at
                         # the quadrature points
                         if length($nodal)==1

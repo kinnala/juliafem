@@ -1,4 +1,4 @@
-macro lin_asm_dispatch(lin_form,mesh,nodal...)
+macro lin_asm(lin_form,mesh,nodal...)
     quote
         ##
         ## Assembly of a linear form using P1 elements.

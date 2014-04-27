@@ -1,33 +1,49 @@
-#
-# Some mesh tools for finite elements.
-#
-# Author: Tom Gustafsson, 11.2.2014
-# Licensed under GPLv3
-#
+##
+## Some mesh tools for finite elements.
+##
+## Author: Tom Gustafsson, 27.4.2014
+## Licensed under GPLv3
+##
 
 # Allows to use the plotting commands
 # of matplotlib
 using PyPlot
 
 type Mesh
-    # Mesh type for storing
-    # triangular two-dimesional
-    # finite element meshes
+    ## Mesh type for storing
+    ## triangular two-dimesional
+    ## finite element meshes
 
+    # "TRIMESH"-structure (by M. Juntunen & A. Hannukainen):
+    # * p     = node coordinates in 2xN -matrix
+    # * t     = triangles in 3xN -matrix, contains indices to p
+    # * edges = matrix of all edges in the mesh.
+    #           each column is an edge [n1;n2] with n1<n2.
+    # * t2e   = connects triangles and edges.
+    #           each column corresponds to a triangle and has
+    #           the triangle's edges in the order n1->n2, n2->n3, n1->n3
     p::Array{Float64,2}
     t::Array{Int64,2}
     edges::Array{Int64,2}
     t2e::Array{Int64,2}
+    e2t::Array{Int64,2}
 
     function Mesh(p,t)
-        # Constructor to build the edge
-        # numbering etc
-        # TODO Add the edge2triangle mapping wizardry
+        ## Constructor to build the edge
+        ## numbering etc
 
+        # Sort the triangle indices column-wise
         t = sort(t,1)
+        # Allocate space for edges and e2t-mapping.
+        # Must be truncated in the end to correct size.
         edges = Array(Int64,2,3*size(t,2))
-        t2e = Array(Int64,3,size(t,2))
+        e2t = zeros(2,3*size(t,2))
+        # Allocate space for t2e-mapping and for
+        # a map-structure for checking whether
+        # each edge has already been added.
+        t2e = zeros(3,size(t,2))
         check = Dict{(Int64,Int64),Int64}()
+        # Compute total amount of edges to N
         N = 1;
         for k=1:size(t,2)
             n1=t[1,k]
@@ -67,8 +83,24 @@ type Mesh
             t2e[1,k] = t2e1
             t2e[2,k] = t2e2
             t2e[3,k] = t2e3
+            # Build the inverse mappings
+            if e2t[1,t2e1]==0
+                e2t[1,t2e1]=k
+            else
+                e2t[2,t2e1]=k
+            end
+            if e2t[1,t2e2]==0
+                e2t[1,t2e2]=k
+            else
+                e2t[2,t2e2]=k
+            end
+            if e2t[1,t2e3]==0
+                e2t[1,t2e3]=k
+            else
+                e2t[2,t2e3]=k
+            end
         end
-        new(p,t,edges[:,1:(N-1)],t2e)
+        new(p,t,edges[:,1:(N-1)],t2e,e2t[:,1:(N-1)])
     end
 end
 
