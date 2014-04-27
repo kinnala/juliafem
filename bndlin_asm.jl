@@ -1,11 +1,10 @@
-macro bndbilin_asm(bndbilin_form,mesh,nodal...)
+macro bndlin_asm(bndlin_form,mesh,nodal...)
     quote
         ## TODO Add info
         ## TODO add support for nodal values
 
         # Store triplets (i,j,K_ij)
         local I = Array(Int64,0)
-        local J = Array(Int64,0)
         local V = Array(Float64,0)
 
         # Local basis functions and their gradients
@@ -39,21 +38,17 @@ macro bndbilin_asm(bndbilin_form,mesh,nodal...)
                 local edgelength=sqrt(A1*A1+A2*A2)
                 # Loop over local stiffness matrix
                 for i=1:2
-                    for j=1:2
-                        for q=1:Nqp
-                            local x = A1*qp[q]+b1
-                            local y = A2*qp[q]+b2
-                            local u = phi_hat_qp[j,q]
-                            local v = phi_hat_qp[i,q]
-                            push!(I,$mesh.edges[i,k])
-                            push!(J,$mesh.edges[j,k])
-                            push!(V,($bndbilin_form)*qw[q]*edgelength)
-                        end
+                    for q=1:Nqp
+                        local x = A1*qp[q]+b1
+                        local y = A2*qp[q]+b2
+                        local v = phi_hat_qp[i,q]
+                        push!(I,$mesh.edges[i,k])
+                        push!(V,($bndlin_form)*qw[q]*edgelength)
                     end
                 end
             end
         end
         # Finally build the stiffness matrix
-        sparse(I,J,V)
+        sparsevec(I,V)
     end
 end

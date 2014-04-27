@@ -13,6 +13,7 @@ include("meshtools.jl")
 include("bilin_asm.jl")
 include("lin_asm.jl")
 include("bndbilin_asm.jl")
+include("bndlin_asm.jl")
 
 function test_poisson()
     ##
@@ -173,10 +174,11 @@ end
 
 function play()
     mesh = Mesh()
-    for i=1:8
-        mesh = refinetri(mesh)
-    end
+    #for i=1:8
+    #    mesh = refinetri(mesh)
+    #end
     @time M = @bndbilin_asm(u*v,mesh)
+    @time T = @bndlin_asm(x*v,mesh)
     1
 end
 
